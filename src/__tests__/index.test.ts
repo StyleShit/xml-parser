@@ -62,6 +62,8 @@ describe('XML Parser', () => {
 
 		expect(() => parse('<1element>')).toThrow(`Unexpected '1' at index 1.`);
 
+		expect(() => parse('<element?>')).toThrow(`Unexpected '?' at index 8.`);
+
 		expect(() => parse('<element')).toThrow(
 			`Unexpected end of input at index 8.`,
 		);
@@ -70,11 +72,15 @@ describe('XML Parser', () => {
 	it('should throw for missing closing tag', () => {
 		// Act & Assert.
 		expect(() => parse('<element>')).toThrow(
-			"Expected closing tag for 'element' at index 9.",
+			'Unexpected end of input at index 9.',
 		);
 
 		expect(() => parse('<element></element')).toThrow(
 			'Unexpected end of input at index 18.',
+		);
+
+		expect(() => parse('<element></')).toThrow(
+			'Unexpected end of input at index 11',
 		);
 
 		expect(() => parse('<element></another-element>')).toThrow(
