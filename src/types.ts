@@ -4,6 +4,7 @@ export type XMLElementNode = {
 	kind: 'element';
 	name: string;
 	children: XMLNode[];
+	attributes: Record<string, string>;
 };
 
 export type XMLTextNode = {

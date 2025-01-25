@@ -2,15 +2,36 @@ import { collectWhile } from './collect-while';
 import { skipWhitespaces } from './skip-whitespaces';
 import { validateEndOfInput } from './validate-end-of-input';
 
-export function parseOpeningTag(xml: string, index: number) {
-	return parseTag(xml, index);
+export function parseOpeningTag(
+	xml: string,
+	index: number,
+	options: Pick<ParseTagOptions, 'afterTagName'> = {},
+) {
+	return parseTag(xml, index, options);
 }
 
 export function parseClosingTag(xml: string, index: number) {
-	return parseTag(xml, index, true);
+	return parseTag(xml, index, {
+		beforeTagName: (_, currentIndex) => {
+			if (xml[currentIndex] !== '/') {
+				return null;
+			}
+
+			currentIndex++;
+
+			validateEndOfInput(xml, currentIndex);
+
+			return currentIndex;
+		},
+	});
 }
 
-function parseTag(xml: string, index: number, closing: boolean = false) {
+type ParseTagOptions = {
+	beforeTagName?: (xml: string, index: number) => number | null;
+	afterTagName?: (xml: string, index: number) => number | null;
+};
+
+function parseTag(xml: string, index: number, options: ParseTagOptions = {}) {
 	index = skipWhitespaces(xml, index);
 
 	if (xml[index] !== '<') {
@@ -21,14 +42,14 @@ function parseTag(xml: string, index: number, closing: boolean = false) {
 
 	validateEndOfInput(xml, index);
 
-	if (closing) {
-		if (xml[index] !== '/') {
+	if (options.beforeTagName) {
+		const result = options.beforeTagName(xml, index);
+
+		if (result === null) {
 			return null;
 		}
 
-		index++;
-
-		validateEndOfInput(xml, index);
+		index = result;
 	}
 
 	const tagName = parseTagName(xml, index);
@@ -43,6 +64,16 @@ function parseTag(xml: string, index: number, closing: boolean = false) {
 
 	validateEndOfInput(xml, index);
 
+	if (options.afterTagName) {
+		const result = options.afterTagName(xml, index);
+
+		if (result === null) {
+			return null;
+		}
+
+		index = result;
+	}
+
 	if (xml[index] !== '>') {
 		throw new SyntaxError(
 			`Unexpected '${xml[tagName.nextIndex]}' at index ${String(
@@ -52,10 +83,6 @@ function parseTag(xml: string, index: number, closing: boolean = false) {
 	}
 
 	index++;
-
-	if (!closing) {
-		validateEndOfInput(xml, index);
-	}
 
 	return {
 		value: tagName.value.toLowerCase(),

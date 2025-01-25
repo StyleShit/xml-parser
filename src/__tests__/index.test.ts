@@ -35,6 +35,7 @@ describe('XML Parser', () => {
 		expect(result).toStrictEqual({
 			kind: 'element',
 			name: 'element',
+			attributes: {},
 			children: [],
 		});
 	});
@@ -50,6 +51,7 @@ describe('XML Parser', () => {
 		expect(result).toStrictEqual({
 			kind: 'element',
 			name: 'element',
+			attributes: {},
 			children: [],
 		});
 	});
@@ -72,7 +74,7 @@ describe('XML Parser', () => {
 	it('should throw for missing closing tag', () => {
 		// Act & Assert.
 		expect(() => parse('<element>')).toThrow(
-			'Unexpected end of input at index 9.',
+			`Expected closing tag for 'element' at index 9.`,
 		);
 
 		expect(() => parse('<element></element')).toThrow(
@@ -103,10 +105,12 @@ describe('XML Parser', () => {
 		expect(result).toStrictEqual({
 			kind: 'element',
 			name: 'parent',
+			attributes: {},
 			children: [
 				{
 					kind: 'element',
 					name: 'child',
+					attributes: {},
 					children: [
 						{
 							kind: 'text',
@@ -117,6 +121,7 @@ describe('XML Parser', () => {
 				{
 					kind: 'element',
 					name: 'child2',
+					attributes: {},
 					children: [
 						{
 							kind: 'text',
@@ -126,5 +131,68 @@ describe('XML Parser', () => {
 				},
 			],
 		});
+	});
+
+	it('should parse element with attributes', () => {
+		// Arrange.
+		const xml = `<element
+			attr1="value1"
+			attr2  =  "value2"
+			empty=""
+		>
+			<inner attr3="test 123">text node</inner>
+		</element>`;
+
+		// Act.
+		const result = parse(xml);
+
+		// Assert.
+		expect(result).toStrictEqual({
+			kind: 'element',
+			name: 'element',
+			attributes: {
+				attr1: 'value1',
+				attr2: 'value2',
+				empty: '',
+			},
+			children: [
+				{
+					kind: 'element',
+					name: 'inner',
+					attributes: {
+						attr3: 'test 123',
+					},
+					children: [
+						{
+							kind: 'text',
+							text: 'text node',
+						},
+					],
+				},
+			],
+		});
+	});
+
+	it('should throw for invalid attributes', () => {
+		// Act & Assert.
+		expect(() => parse('<element attr></element>')).toThrow(
+			`Unexpected '>' at index 13.`,
+		);
+
+		expect(() => parse('<element attr=></element>')).toThrow(
+			`Unexpected '>' at index 14.`,
+		);
+
+		expect(() => parse('<element attr="></element>')).toThrow(
+			`Unexpected '>' at index 15.`,
+		);
+
+		expect(() => parse('<element attr="value></element>')).toThrow(
+			`Unexpected '>' at index 20.`,
+		);
+
+		expect(() => parse('<element attr?></element>')).toThrow(
+			`Unexpected '?' at index 13.`,
+		);
 	});
 });

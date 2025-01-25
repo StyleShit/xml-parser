@@ -1,4 +1,5 @@
 import { parseXML } from './parse';
+import { parseAttributes } from './parse-attributes';
 import { parseClosingTag, parseOpeningTag } from './parse-tag';
 import type { ParsedXMLNode, XMLElementNode, XMLNode } from './types';
 
@@ -6,7 +7,17 @@ export function parseElement(
 	xml: string,
 	index: number,
 ): ParsedXMLNode<XMLElementNode> | null {
-	const openingTag = parseOpeningTag(xml, index);
+	let attributes: XMLElementNode['attributes'] = {};
+
+	const openingTag = parseOpeningTag(xml, index, {
+		afterTagName: (_, currentIndex) => {
+			const parsedAttributes = parseAttributes(xml, currentIndex);
+
+			attributes = parsedAttributes.value;
+
+			return parsedAttributes.nextIndex;
+		},
+	});
 
 	if (!openingTag) {
 		return null;
@@ -31,6 +42,7 @@ export function parseElement(
 					kind: 'element',
 					name: openingTag.value,
 					children,
+					attributes,
 				} satisfies XMLElementNode,
 				nextIndex: closingTag.nextIndex,
 			};
