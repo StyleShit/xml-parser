@@ -14,8 +14,13 @@ describe('XML Parser', () => {
 
 		// Assert.
 		expect(result).toStrictEqual({
-			kind: 'text',
-			text: xml,
+			kind: 'document',
+			children: [
+				{
+					kind: 'text',
+					text: xml,
+				},
+			],
 		});
 	});
 
@@ -33,10 +38,15 @@ describe('XML Parser', () => {
 
 		// Assert.
 		expect(result).toStrictEqual({
-			kind: 'element',
-			name: 'element',
-			attributes: {},
-			children: [],
+			kind: 'document',
+			children: [
+				{
+					kind: 'element',
+					name: 'element',
+					attributes: {},
+					children: [],
+				},
+			],
 		});
 	});
 
@@ -49,10 +59,15 @@ describe('XML Parser', () => {
 
 		// Assert.
 		expect(result).toStrictEqual({
-			kind: 'element',
-			name: 'element',
-			attributes: {},
-			children: [],
+			kind: 'document',
+			children: [
+				{
+					kind: 'element',
+					name: 'element',
+					attributes: {},
+					children: [],
+				},
+			],
 		});
 	});
 
@@ -99,29 +114,34 @@ describe('XML Parser', () => {
 
 		// Assert.
 		expect(result).toStrictEqual({
-			kind: 'element',
-			name: 'parent',
-			attributes: {},
+			kind: 'document',
 			children: [
 				{
 					kind: 'element',
-					name: 'child',
+					name: 'parent',
 					attributes: {},
 					children: [
 						{
-							kind: 'text',
-							text: 'This is a text node',
+							kind: 'element',
+							name: 'child',
+							attributes: {},
+							children: [
+								{
+									kind: 'text',
+									text: 'This is a text node',
+								},
+							],
 						},
-					],
-				},
-				{
-					kind: 'element',
-					name: 'child2',
-					attributes: {},
-					children: [
 						{
-							kind: 'text',
-							text: 'This is another text node',
+							kind: 'element',
+							name: 'child2',
+							attributes: {},
+							children: [
+								{
+									kind: 'text',
+									text: 'This is another text node',
+								},
+							],
 						},
 					],
 				},
@@ -144,24 +164,29 @@ describe('XML Parser', () => {
 
 		// Assert.
 		expect(result).toStrictEqual({
-			kind: 'element',
-			name: 'element',
-			attributes: {
-				attr1: 'value1',
-				attr2: 'value2',
-				empty: '',
-			},
+			kind: 'document',
 			children: [
 				{
 					kind: 'element',
-					name: 'inner',
+					name: 'element',
 					attributes: {
-						attr3: 'test 123',
+						attr1: 'value1',
+						attr2: 'value2',
+						empty: '',
 					},
 					children: [
 						{
-							kind: 'text',
-							text: 'text node',
+							kind: 'element',
+							name: 'inner',
+							attributes: {
+								attr3: 'test 123',
+							},
+							children: [
+								{
+									kind: 'text',
+									text: 'text node',
+								},
+							],
 						},
 					],
 				},
@@ -190,5 +215,42 @@ describe('XML Parser', () => {
 		expect(() => parse('<element attr?></element>')).toThrow(
 			`Unexpected '?' at index 13.`,
 		);
+	});
+
+	it('should parse top level sibling nodes', () => {
+		// Arrange.
+		const xml = `
+			<element1></element1>
+			text node
+			<element4></element4>
+		`;
+
+		// Act.
+		const result = parse(xml);
+
+		// Assert.
+		expect(result).toStrictEqual({
+			kind: 'document',
+			children: [
+				{
+					kind: 'element',
+					name: 'element1',
+					attributes: {},
+					children: [],
+				},
+				{
+					kind: 'text',
+					text: `
+			text node
+			`,
+				},
+				{
+					kind: 'element',
+					name: 'element4',
+					attributes: {},
+					children: [],
+				},
+			],
+		});
 	});
 });

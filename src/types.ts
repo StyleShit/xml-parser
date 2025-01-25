@@ -1,5 +1,10 @@
 export type XMLNode = XMLElementNode | XMLTextNode;
 
+export type XMLDocumentNode = {
+	kind: 'document';
+	children: XMLNode[];
+};
+
 export type XMLElementNode = {
 	kind: 'element';
 	name: string;

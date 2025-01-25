@@ -1,16 +1,30 @@
 import { UnexpectedTokenError } from './errors/unexpected-token-error';
 import { parseElement } from './parse-element';
 import { parseTextNode } from './parse-text-node';
-import type { ParsedXMLNode, XMLNode } from './types';
+import type { ParsedXMLNode, XMLDocumentNode, XMLNode } from './types';
 
 export function parse(xml: string) {
-	const parsed = parseXML(xml, 0);
+	xml = xml.trim();
 
-	if (!parsed) {
-		throw new UnexpectedTokenError(xml, 0);
+	let index = 0;
+	const children: XMLNode[] = [];
+
+	while (index < xml.length) {
+		const nextChild = parseXML(xml, index);
+
+		if (!nextChild) {
+			throw new UnexpectedTokenError(xml, index);
+		}
+
+		children.push(nextChild.value);
+
+		index = nextChild.nextIndex;
 	}
 
-	return parsed.value;
+	return {
+		kind: 'document',
+		children,
+	} satisfies XMLDocumentNode;
 }
 
 export function parseXML(
