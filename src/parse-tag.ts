@@ -17,15 +17,22 @@ export function parseClosingTag(xml: string, index: number) {
 				return null;
 			}
 
-			return currentIndex + 1;
+			return {
+				nextIndex: currentIndex + 1,
+			};
 		},
 	});
 }
 
 type ParseTagOptions = {
-	beforeTagName?: (xml: string, index: number) => number | null;
-	afterTagName?: (xml: string, index: number) => number | null;
+	beforeTagName?: ParserMiddleware;
+	afterTagName?: ParserMiddleware;
 };
+
+type ParserMiddleware = (
+	xml: string,
+	index: number,
+) => { nextIndex: number } | null;
 
 function parseTag(xml: string, index: number, options: ParseTagOptions = {}) {
 	index = skipWhitespaces(xml, index);
@@ -43,7 +50,7 @@ function parseTag(xml: string, index: number, options: ParseTagOptions = {}) {
 			return null;
 		}
 
-		index = result;
+		index = result.nextIndex;
 	}
 
 	const tagName = parseTagName(xml, index);
@@ -61,7 +68,7 @@ function parseTag(xml: string, index: number, options: ParseTagOptions = {}) {
 			return null;
 		}
 
-		index = result;
+		index = result.nextIndex;
 	}
 
 	if (xml[index] !== '>') {

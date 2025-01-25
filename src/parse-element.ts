@@ -17,7 +17,9 @@ export function parseElement(
 
 			attributes = parsedAttributes.value;
 
-			return parsedAttributes.nextIndex;
+			return {
+				nextIndex: parsedAttributes.nextIndex,
+			};
 		},
 	});
 
