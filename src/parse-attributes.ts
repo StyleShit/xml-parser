@@ -1,4 +1,5 @@
 import { collectWhile } from './collect-while';
+import { UnexpectedTokenError } from './errors/unexpected-token-error';
 import { skipSpaces } from './skip-spaces';
 import { skipWhitespaces } from './skip-whitespaces';
 import type { XMLElementNode } from './types';
@@ -40,17 +41,13 @@ function parseAttribute(xml: string, index: number) {
 	index = skipSpaces(xml, attributeName.nextIndex);
 
 	if (xml[index] !== '=') {
-		throw new SyntaxError(
-			`Unexpected '${xml[index]}' at index ${String(index)}.`,
-		);
+		throw new UnexpectedTokenError(xml, index);
 	}
 
 	index = skipSpaces(xml, index + 1);
 
 	if (xml[index] !== '"') {
-		throw new SyntaxError(
-			`Unexpected '${xml[index]}' at index ${String(index)}.`,
-		);
+		throw new UnexpectedTokenError(xml, index);
 	}
 
 	index++;
@@ -62,9 +59,7 @@ function parseAttribute(xml: string, index: number) {
 	index = attributeValue?.nextIndex ?? index;
 
 	if (xml[index] !== '"') {
-		throw new SyntaxError(
-			`Unexpected '${xml[index]}' at index ${String(index)}.`,
-		);
+		throw new UnexpectedTokenError(xml, index);
 	}
 
 	index++;

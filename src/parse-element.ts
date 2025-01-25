@@ -1,3 +1,5 @@
+import { ExpectedClosingTagError } from './errors/expected-closing-tag-error';
+import { UnexpectedTokenError } from './errors/unexpected-token-error';
 import { parseXML } from './parse';
 import { parseAttributes } from './parse-attributes';
 import { parseClosingTag, parseOpeningTag } from './parse-tag';
@@ -32,8 +34,10 @@ export function parseElement(
 
 		if (closingTag) {
 			if (closingTag.value !== openingTag.value) {
-				throw new SyntaxError(
-					`Expected closing tag for '${openingTag.value}' at index ${String(index)}. Got '${closingTag.value}' instead.`,
+				throw new ExpectedClosingTagError(
+					index,
+					openingTag.value,
+					closingTag.value,
 				);
 			}
 
@@ -51,9 +55,7 @@ export function parseElement(
 		const nextChild = parseXML(xml, index);
 
 		if (!nextChild) {
-			throw new SyntaxError(
-				`Unexpected '${xml[index]}' at index ${String(index)}.`,
-			);
+			throw new UnexpectedTokenError(xml, index);
 		}
 
 		children.push(nextChild.value);
@@ -61,7 +63,5 @@ export function parseElement(
 		index = nextChild.nextIndex;
 	}
 
-	throw new SyntaxError(
-		`Expected closing tag for '${openingTag.value}' at index ${String(index)}.`,
-	);
+	throw new ExpectedClosingTagError(index, openingTag.value);
 }

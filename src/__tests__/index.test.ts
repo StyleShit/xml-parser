@@ -21,7 +21,7 @@ describe('XML Parser', () => {
 
 	it('should throw for invalid text node tokens', () => {
 		// Act & Assert.
-		expect(() => parse('<')).toThrow(`Unexpected end of input at index 1.`);
+		expect(() => parse('<')).toThrow(`Unexpected end of input.`);
 	});
 
 	it('should parse element nodes', () => {
@@ -66,9 +66,7 @@ describe('XML Parser', () => {
 
 		expect(() => parse('<element?>')).toThrow(`Unexpected '?' at index 8.`);
 
-		expect(() => parse('<element')).toThrow(
-			`Unexpected end of input at index 8.`,
-		);
+		expect(() => parse('<element')).toThrow(`Unexpected end of input.`);
 	});
 
 	it('should throw for missing closing tag', () => {
@@ -78,12 +76,10 @@ describe('XML Parser', () => {
 		);
 
 		expect(() => parse('<element></element')).toThrow(
-			'Unexpected end of input at index 18.',
+			'Unexpected end of input.',
 		);
 
-		expect(() => parse('<element></')).toThrow(
-			'Unexpected end of input at index 11',
-		);
+		expect(() => parse('<element></')).toThrow('Unexpected end of input.');
 
 		expect(() => parse('<element></another-element>')).toThrow(
 			"Expected closing tag for 'element' at index 9. Got 'another-element' instead.",

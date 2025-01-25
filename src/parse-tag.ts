@@ -1,6 +1,6 @@
 import { collectWhile } from './collect-while';
+import { UnexpectedTokenError } from './errors/unexpected-token-error';
 import { skipWhitespaces } from './skip-whitespaces';
-import { validateEndOfInput } from './validate-end-of-input';
 
 export function parseOpeningTag(
 	xml: string,
@@ -17,11 +17,7 @@ export function parseClosingTag(xml: string, index: number) {
 				return null;
 			}
 
-			currentIndex++;
-
-			validateEndOfInput(xml, currentIndex);
-
-			return currentIndex;
+			return currentIndex + 1;
 		},
 	});
 }
@@ -40,8 +36,6 @@ function parseTag(xml: string, index: number, options: ParseTagOptions = {}) {
 
 	index++;
 
-	validateEndOfInput(xml, index);
-
 	if (options.beforeTagName) {
 		const result = options.beforeTagName(xml, index);
 
@@ -55,14 +49,10 @@ function parseTag(xml: string, index: number, options: ParseTagOptions = {}) {
 	const tagName = parseTagName(xml, index);
 
 	if (!tagName) {
-		throw new SyntaxError(
-			`Unexpected '${xml[index]}' at index ${String(index)}.`,
-		);
+		throw new UnexpectedTokenError(xml, index);
 	}
 
 	index = tagName.nextIndex;
-
-	validateEndOfInput(xml, index);
 
 	if (options.afterTagName) {
 		const result = options.afterTagName(xml, index);
@@ -75,11 +65,7 @@ function parseTag(xml: string, index: number, options: ParseTagOptions = {}) {
 	}
 
 	if (xml[index] !== '>') {
-		throw new SyntaxError(
-			`Unexpected '${xml[tagName.nextIndex]}' at index ${String(
-				tagName.nextIndex,
-			)}.`,
-		);
+		throw new UnexpectedTokenError(xml, index);
 	}
 
 	index++;
