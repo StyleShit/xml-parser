@@ -3,6 +3,10 @@ export function collectWhile(
 	index: number,
 	condition: (char: string) => boolean,
 ) {
+	if (index >= xml.length) {
+		return null;
+	}
+
 	if (!condition(xml[index])) {
 		return null;
 	}
