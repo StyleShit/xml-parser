@@ -13,7 +13,7 @@ describe('XML Parser', () => {
 		const result = parse(xml);
 
 		// Assert.
-		expect(result).toMatchObject({
+		expect(result).toStrictEqual({
 			kind: 'text',
 			text: xml,
 		});
@@ -32,9 +32,10 @@ describe('XML Parser', () => {
 		const result = parse(xml);
 
 		// Assert.
-		expect(result).toMatchObject({
+		expect(result).toStrictEqual({
 			kind: 'element',
 			name: 'element',
+			children: [],
 		});
 	});
 
@@ -46,9 +47,10 @@ describe('XML Parser', () => {
 		const result = parse(xml);
 
 		// Assert.
-		expect(result).toMatchObject({
+		expect(result).toStrictEqual({
 			kind: 'element',
 			name: 'element',
+			children: [],
 		});
 	});
 
@@ -72,11 +74,51 @@ describe('XML Parser', () => {
 		);
 
 		expect(() => parse('<element></element')).toThrow(
-			"Expected closing tag for 'element' at index 9.",
+			'Unexpected end of input at index 18.',
 		);
 
 		expect(() => parse('<element></another-element>')).toThrow(
-			"Expected closing tag for 'element' at index 9.",
+			"Expected closing tag for 'element' at index 9. Got 'another-element' instead.",
 		);
+	});
+
+	it('should parse element with children', () => {
+		// Arrange.
+		const xml = `
+			<parent>
+				<child>This is a text node</child>
+				<child2>This is another text node</child2>
+			</parent>`;
+
+		// Act.
+		const result = parse(xml);
+
+		// Assert.
+		expect(result).toStrictEqual({
+			kind: 'element',
+			name: 'parent',
+			children: [
+				{
+					kind: 'element',
+					name: 'child',
+					children: [
+						{
+							kind: 'text',
+							text: 'This is a text node',
+						},
+					],
+				},
+				{
+					kind: 'element',
+					name: 'child2',
+					children: [
+						{
+							kind: 'text',
+							text: 'This is another text node',
+						},
+					],
+				},
+			],
+		});
 	});
 });

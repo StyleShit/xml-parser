@@ -3,6 +3,7 @@ export type XMLNode = XMLElementNode | XMLTextNode;
 export type XMLElementNode = {
 	kind: 'element';
 	name: string;
+	children: XMLNode[];
 };
 
 export type XMLTextNode = {

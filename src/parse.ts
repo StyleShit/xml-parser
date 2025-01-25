@@ -12,6 +12,9 @@ export function parse(xml: string) {
 	return parsed.value;
 }
 
-function parseXML(xml: string, index: number): ParsedXMLNode<XMLNode> | null {
+export function parseXML(
+	xml: string,
+	index: number,
+): ParsedXMLNode<XMLNode> | null {
 	return parseElement(xml, index) ?? parseTextNode(xml, index);
 }

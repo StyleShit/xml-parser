@@ -1,13 +1,13 @@
 export function collectWhile(
 	xml: string,
 	index: number,
-	condition: (char: string) => boolean,
+	condition: (char: string, currentIndex: number) => boolean,
 ) {
 	if (index >= xml.length) {
 		return null;
 	}
 
-	if (!condition(xml[index])) {
+	if (!condition(xml[index], index)) {
 		return null;
 	}
 
@@ -15,7 +15,7 @@ export function collectWhile(
 
 	index++;
 
-	while (index < xml.length && condition(xml[index])) {
+	while (index < xml.length && condition(xml[index], index)) {
 		value += xml[index];
 
 		index++;
