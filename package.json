@@ -1,7 +1,7 @@
 {
 	"name": "@styleshit/xml-parser",
 	"description": "Simple XML to AST parser in TypeScript",
-	"version": "0.0.0",
+	"version": "0.0.1",
 	"author": "StyleShit",
 	"license": "MIT",
 	"repository": {
